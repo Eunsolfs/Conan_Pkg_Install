@@ -1,0 +1,248 @@
+MSBuildToolchain
+
+Available types: CMakeToolchain, CMakeDeps, MesonToolchain, MSBuildDeps, MSBuildToolchain, NMakeToolchain, NMakeDeps, VCVars, QbsProfile, VirtualRunEnv, VirtualBuildEnv, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps, BazelDeps, BazelToolchain, IntelCC, XcodeDeps, XcodeToolchain, PremakeDeps
+
+
+
+
+
+
+
+
+
+
+
+
+---------
+
+@echo off
+chcp 65001
+setLocal EnableDelayedExpansion
+
+rem premake5 vs2022
+rem 手动指定 conanfile.txt
+rem conan install ./conanfile.txt -pr x64mt -u --build=missing
+rem conan install ./conanfile.txt -pr x64mtd -u --build=missing
+rem conan install ./conanfile.txt -pr x86mt -u --build=missing
+rem conan install ./conanfile.txt -pr x86mtd -u --build=missing
+rem conan install ./conanfile.txt -pr x86mt -u --build=missing
+
+
+:setPackgName
+echo:
+set /p pkgname=输入conanfile.txt的文件名然后敲回车键:
+set matchStr=.txt
+echo %pkgname% | findstr %matchStr% >nul && set pkgname=%pkgname% || set pkgname=%pkgname%%matchStr%
+
+set key=yes
+set /p key=输入的包名为 !pkgname!，确认无误? (yes,no,回车=yes):
+rem 获取包名.txt文件中的版本信息-------------------------
+:getPkgVersion
+set lineFlag=0
+set targetLocation=0
+set matchStr=requires
+set pkgFullName=
+for /f "tokens=*" %%i in (!pkgname!) do (
+  set /a lineFlag+=1
+  echo %%i | findstr %matchStr% >nul && set targetLocation=0 || set /a targetLocation+=1
+  if !targetLocation!==2 (
+    set lineContent=%%i
+    set pkgFullName=!lineContent:/=_!
+    rem echo pkgFullName= !pkgFullName!
+    goto :endloop_getPkgVersion
+  )
+  set /a targetLocation+=1
+)
+:endloop_getPkgVersion
+set lineFlag=0
+set targetLocation=0
+rem -----------------------------------------------------------------------
+if "%key%"=="yes" (
+  goto MENU
+)
+if "%key%"=="y" (
+  goto MENU
+)
+if "%key%"=="no" (
+  goto ExitMenu
+)
+if "%key%"=="n" (
+  goto ExitMenu
+) else (
+  goto ExitMenu
+)
+rem --自定义conan profile----------------------------------------------------------
+rem 待定
+
+rem -----------------------------------------------------------------------
+:MENU
+set /a m_index=0
+echo.&echo 1.x86 static mt Release
+echo.&echo 2.x86 static mt Debug
+echo.&echo 3.x64 static mt Release
+echo.&echo 4.x64 static mt Debug
+echo.&echo 5.1234全部安装
+echo.&echo 6.安装另一个包
+echo.&echo 7.退出
+echo:
+set /p choice=输入数字敲回车键:
+if "%choice%"=="" (
+  set choice=7
+)
+if %choice% EQU 1 (
+  goto x86MTRelaese
+)
+if %choice% EQU 2 (
+  goto x86MTDebug
+)
+if %choice% EQU 3 (
+  goto x64MTRelaese
+)
+if %choice% EQU 4 (
+  goto x64MTDebug
+)
+if %choice% EQU 5 (
+  goto installALL
+)
+if %choice% EQU 6 (
+  goto setPackgName
+)
+if %choice% EQU 7 (
+  goto ExitMenu
+)
+
+echo 输入无效 &PAUSE>NUL&CLS&GOTO MENU
+rem -----------------------------------------------------------------------
+
+:installALL
+set /a m_index+=1
+if !m_index! EQU 1 (
+  goto x86MTRelaese
+)
+if !m_index! EQU 2 (
+  goto x86MTDebug
+)
+if !m_index! EQU 3 (
+  goto x64MTRelaese
+)
+if !m_index! EQU 4 (
+  goto x64MTDebug
+)
+
+rem -----------------------------------------------------------------------
+
+:x86MTRelaese
+conan install !pkgname! -pr x86mt -u --build=missing
+if !m_index! EQU 1 (
+  goto renameAndBack
+)
+else (
+  goto renameAndExit
+)
+:x86MTDebug
+conan install !pkgname! -pr x86mtd -u --build=missing
+if !m_index! EQU 2 (
+  goto renameAndBack
+)
+else (
+  goto renameAndExit
+)
+:x64MTRelaese
+conan install !pkgname! -pr x64mt -u --build=missing
+if !m_index! EQU 3 (
+  goto renameAndBack
+)
+else (
+  goto renameAndExit
+)
+:x64MTDebug
+conan install !pkgname! -pr x64mtd -u --build=missing
+if !m_index! EQU 4 (
+  goto renameAndBack
+)
+else (
+  goto renameAndExit
+)
+
+rem -----------------------------------------------------------------------
+
+:renameAndExit
+rem EQU - 等于 NEQ - 不等于 LSS - 小于 LEQ - 小于或等于 GTR - 大于 GEQ - 大于或等于
+set filepath=%cd%\conanbuildinfo.props
+set conanIncludeFilesDir=%cd%\ConanVSIncludeFiles
+set newName=
+set name_x86mt=_x86_static_MT_Release.props
+set name_x86mtd=_x86_static_MT_Debug.props
+set name_x64mt=_x64_static_MT_Release.props
+set name_x64mtd=_x64_static_MT_Debug.props
+if exist %filepath% (
+  echo 正在重命名文件...
+  if %choice% EQU 1 (
+    set newName=conan_!pkgFullName!%name_x86mt%
+  )
+  if %choice% EQU 2 (
+    set newName=conan_!pkgFullName!%name_x86mtd%
+  )
+  if %choice% EQU 3 (
+    set newName=conan_!pkgFullName!%name_x64mt%
+  )
+  if %choice% EQU 4 (
+    set newName=conan_!pkgFullName!%name_x64mtd%
+  )
+  ren conanbuildinfo.props !newName!
+  if not exist !conanIncludeFilesDir! (
+    md !conanIncludeFilesDir!
+  )
+  move %cd%\*.props !conanIncludeFilesDir!
+  echo 移动 props 文件完毕，任意键返回 &PAUSE>NUL&CLS&GOTO MENU
+) else (
+  echo 当前目录下没有找到 conanbuildinfo.props 文件
+  goto ExitMenu
+)
+rem -----------------------------------------------------------------------
+
+:renameAndBack
+rem EQU - 等于 NEQ - 不等于 LSS - 小于 LEQ - 小于或等于 GTR - 大于 GEQ - 大于或等于
+set filepath=%cd%\conanbuildinfo.props
+set conanIncludeFilesDir=%cd%\ConanVSIncludeFiles
+set newName=
+set name_x86mt=_x86_static_MT_Release.props
+set name_x86mtd=_x86_static_MT_Debug.props
+set name_x64mt=_x64_static_MT_Release.props
+set name_x64mtd=_x64_static_MT_Debug.props
+if exist %filepath% (
+  echo 正在重命名文件...
+  if !m_index! EQU 1 (
+    set newName=conan_!pkgFullName!%name_x86mt%
+  )
+  if !m_index! EQU 2 (
+    set newName=conan_!pkgFullName!%name_x86mtd%
+  )
+  if !m_index! EQU 3 (
+    set newName=conan_!pkgFullName!%name_x64mt%
+  )
+  if !m_index! EQU 4 (
+    set newName=conan_!pkgFullName!%name_x64mtd%
+  )
+  ren conanbuildinfo.props !newName!
+  if not exist !conanIncludeFilesDir! (
+    md !conanIncludeFilesDir!
+  )
+  move %cd%\*.props !conanIncludeFilesDir!
+  echo 移动 props 文件完毕
+  if !m_index! EQU 4 (
+    goto MENU
+  )
+  else(
+    goto installALL
+  )
+) else (
+  echo 当前目录下没有找到 conanbuildinfo.props 文件
+  goto ExitMenu
+)
+rem -----------------------------------------------------------------------
+
+
+:ExitMenu
+echo:&echo 退出! 
+endlocal

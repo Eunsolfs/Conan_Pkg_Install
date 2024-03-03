@@ -1,0 +1,38 @@
+# VSCODE FILE
+*.code-workspace
+# VS FILE
+*.sln
+
+# 生成的记录文件
+conanbuildinfo.**
+conaninfo.txt
+graph_info.json
+conanbuildinfo.props
+conan.lock
+testbat.bat
+re.bat
+VSCode工作区.lnk
+
+conanbuild.bat
+conanrun.bat
+conanvcvars.bat
+
+conanbuildenv-release-x86.bat
+conanrunenv-release-x86.bat
+conanbuildenv-debug-x86.bat
+conanrunenv-debug-x86.bat
+conanbuildenv-release-x86_64.bat
+conanrunenv-release-x86_64.bat
+conanbuildenv-debug-x86_64.bat
+conanrunenv-debug-x86_64.bat
+deactivate_conanbuild.bat
+deactivate_conanrun.bat
+
+
+.vs/
+.vscode/
+.git/
+ConanVSIncludeFiles/
+ConanVSIncludeFiles/**
+
+*.props

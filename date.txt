@@ -1,0 +1,5 @@
+[requires]
+date/3.0.1
+
+[generators]
+visual_studio

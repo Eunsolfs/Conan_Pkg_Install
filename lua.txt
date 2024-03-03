@@ -1,0 +1,8 @@
+[requires]
+lua/5.4.6
+
+[generators]
+MSBuildDeps
+
+[options]
+shared=True
