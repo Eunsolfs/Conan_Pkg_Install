@@ -207,12 +207,8 @@ if !m_index! EQU 9 (
 rem -----------------------------------------------------------------------
 
 :goBack
-if %choice% EQU 5 && !m_index! NEQ 5(
-  goto installALL_MT
-)
-if %choice% EQU 10 && !m_index! NEQ 10(
-  goto installALL_MD
-)
+if %choice% EQU 5 (if !m_index! NEQ 5 goto installALL_MT)
+if %choice% EQU 10 (if !m_index! NEQ 10 goto installALL_MD)
 goto MENU
 
 rem -----------------------------------------------------------------------
