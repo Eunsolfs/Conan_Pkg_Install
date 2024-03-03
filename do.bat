@@ -173,7 +173,7 @@ if !m_index! EQU 10 (
 rem -----------------------------------------------------------------------
 
 :x86MDRelease
-conan install !pkgname! --profile:build=x86_MD_Release --profile:host=x86_MD_Release -u --build=missing
+conan install !pkgname! -pr x86_MD_Release -u --build=missing
 if !m_index! EQU 6 (
   goto goBack
 ) else (
@@ -207,10 +207,10 @@ if !m_index! EQU 9 (
 rem -----------------------------------------------------------------------
 
 :goBack
-if %choice% EQU 5 AND !m_index! NEQ 5(
+if %choice% EQU 5 && !m_index! NEQ 5(
   goto installALL_MT
 )
-if %choice% EQU 10 AND !m_index! NEQ 10(
+if %choice% EQU 10 && !m_index! NEQ 10(
   goto installALL_MD
 )
 goto MENU
