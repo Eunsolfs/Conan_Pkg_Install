@@ -34,5 +34,7 @@ deactivate_conanrun.bat
 .git/
 ConanVSIncludeFiles/
 ConanVSIncludeFiles/**
+ConanPkg_VS_IncludeFiles/
+ConanPkg_VS_IncludeFiles/**
 
 *.props
